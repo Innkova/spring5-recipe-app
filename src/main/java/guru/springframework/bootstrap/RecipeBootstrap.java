@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEvent> {
@@ -35,28 +34,16 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         List<Recipe> recipes = new ArrayList<>(2);
 
         //get UOMs
-        Optional<UnitOfMeasure> eachUomOptional = initUOM("Each");
-        Optional<UnitOfMeasure> tableSpoonUomOptional = initUOM("Tablespoon");
-        Optional<UnitOfMeasure> teaSpoonUomOptional = initUOM("Teaspoon");
-        Optional<UnitOfMeasure> dashUomOptional = initUOM("Dash");
-        Optional<UnitOfMeasure> pintUomOptional = initUOM("Pint");
-        Optional<UnitOfMeasure> cupsUomOptional = initUOM("Cup");
-
-        //get UOMs optionals
-        UnitOfMeasure eachUom = eachUomOptional.get();
-        UnitOfMeasure tableSpoonUom = tableSpoonUomOptional.get();
-        UnitOfMeasure teaSpoonUom = teaSpoonUomOptional.get();
-        UnitOfMeasure dashUom = dashUomOptional.get();
-        UnitOfMeasure pintUom = pintUomOptional.get();
-        UnitOfMeasure cupsUom = cupsUomOptional.get();
+        UnitOfMeasure eachUom = getUOM("Each");
+        UnitOfMeasure tableSpoonUom = getUOM("Tablespoon");
+        UnitOfMeasure teaSpoonUom = getUOM("Teaspoon");
+        UnitOfMeasure dashUom = getUOM("Dash");
+        UnitOfMeasure pintUom = getUOM("Pint");
+        UnitOfMeasure cupsUom = getUOM("Cup");
 
         //get Categories
-        Optional<Category> americanCategoryOptional = initCategory("American");
-        Optional<Category> mexicanCategoryOptional = initCategory("Mexican");
-
-        //get Categories optionals
-        Category americanCategory = americanCategoryOptional.get();
-        Category mexicanCategory = mexicanCategoryOptional.get();
+        Category americanCategory = getCategory("American");
+        Category mexicanCategory = getCategory("Mexican");
 
         //Yummy Guac
         Recipe guacRecipe = new Recipe();
@@ -163,21 +150,18 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
         return recipes;
     }
 
-    private Optional<UnitOfMeasure> initUOM(String measure) {
-        Optional<UnitOfMeasure> measureUomOptional = unitOfMeasureRepository.findByDescription(measure);
+    private UnitOfMeasure getUOM(String measure) {
 
-        if (!measureUomOptional.isPresent()) {
-            throw new RuntimeException("Expected UOM Not Found");
-        }
-        return measureUomOptional;
+        return unitOfMeasureRepository
+                .findByDescription(measure)
+                .orElseThrow(() -> new RuntimeException("Unit of measure " + measure + "is not found"));
+
     }
 
-    private Optional<Category> initCategory(String category) {
-        Optional<Category> categoryOptional = categoryRepository.findByDescription(category);
+    private Category getCategory(String category) {
 
-        if (!categoryOptional.isPresent()) {
-            throw new RuntimeException("Expected UOM Not Found");
-        }
-        return categoryOptional;
+        return categoryRepository
+                .findByDescription(category)
+                .orElseThrow(() -> new RuntimeException("Category " + category + "is not found"));
     }
 }
